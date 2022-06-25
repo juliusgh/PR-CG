@@ -1,7 +1,48 @@
 import numpy as np
 
 
-def cg(A, b, x0, max_iter=10000, eps=1e-8, variant='cg'):
+def cg(A, b, x0, max_iter=10000, eps=1e-8):
+    """_summary_
+
+    :param A: _description_
+    :type A: _type_
+    :param b: _description_
+    :type b: _type_
+    :param x0: _description_
+    :type x0: _type_
+    :param max_iter: _description_, defaults to 100
+    :type max_iter: int, optional
+    :param eps: _description_, defaults to 1e-8
+    :type eps: _type_, optional
+    """    
+    r0 = b - A @ x0
+    p = r0
+    alpha0 = np.dot(r0, r0)
+    r = r0
+    x = x0
+    alpha = alpha0
+    m = 0
+    rm = np.array(np.linalg.norm(b-A@x))
+    xm = x
+    while (m < max_iter):
+        v = A @ p
+        mu = np.dot(v, p)
+        lamb = alpha / mu
+        x = x + lamb * p
+        r = r - lamb * v
+        last_alpha = alpha
+        alpha = np.dot(r, r)
+        exact_r = b - A @ x
+        rm = np.append(rm, np.linalg.norm(exact_r))
+        xm = np.vstack((xm, x))
+        p = r + (alpha / last_alpha) * p
+        m += 1
+        if np.linalg.norm(exact_r) < eps:
+            break
+    return x, rm, xm
+
+
+def master_cg(A, b, x0, max_iter=10000, eps=1e-8, variant='cg'):
     """_summary_
 
     :param A: _description_
@@ -153,10 +194,6 @@ def pr_pcg(A, b, x0, x_exact, preconditioner=lambda x:x, max_iter=10000, eps=1e-
 
         iterates = np.vstack((iterates, x))
         residuals = np.vstack((residuals, r))
-
-        iterates = np.vstack((iterates, x))
-        residuals = np.vstack((residuals, r))
-
         if np.linalg.norm(b - A @ x) / np.linalg.norm(r0) < eps:
             break
         m += 1
