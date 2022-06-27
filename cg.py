@@ -114,32 +114,47 @@ def pcg(A, b, x0, x_exact, preconditioner=lambda x:x, max_iter=10000, eps=1e-8, 
     r_tilde = preconditioner(r)
     p = r_tilde
     alpha = np.dot(r_tilde, r)
+    if variant in ['pipe_p_cg', 'pipe_pr_cg']:
+        v = A @ p
+        v_tilde = preconditioner(v)
 
     iterates = x0
     residuals = r0
     x = x0
     m = 0
     while (m < max_iter):
-        v = A @ p
-        v_tilde = preconditioner(v)
+        if variant in ['pipe_p_cg', 'pipe_pr_cg']:
+            u = A @ v_tilde
+            u_tilde = preconditioner(u)
+            w = A @ r_tilde
+            w_tilde = preconditioner(w)
+        else:
+            v = A @ p
+            v_tilde = preconditioner(v)
         mu = np.dot(v, p)
-        if variant in ['cg', 'p_cg', 'pr_cg', 'mp_cg', 'mpr_cg']:
+        if variant in ['cg', 'p_cg', 'pr_cg', 'mp_cg', 'mpr_cg', 'pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
             sigma = np.dot(r, v_tilde)
             gamma = np.dot(v_tilde, v)
-        if variant in ['cg', 'pr_cg', 'mpr_cg']:
+        if variant in ['cg', 'pr_cg', 'mpr_cg', 'pipe_pr_cg', 'pipe_mpr_cg']:
             alpha = np.dot(r_tilde, r)
         lamb = alpha / mu
         x = x + lamb * p
         r = r - lamb * v
         r_tilde = r_tilde - lamb * v_tilde
+        if variant in ['pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+            w = w - lamb * u
+            w_tilde = w_tilde - lamb * u_tilde
         last_alpha = alpha
         if variant in ['cg']:
             alpha = np.dot(r_tilde, r)
-        if variant in ['p_cg', 'pr_cg']:
+        if variant in ['p_cg', 'pr_cg', 'pipe_p_cg', 'pipe_pr_cg']:
             alpha = alpha - 2*lamb*sigma + lamb**2 * gamma
-        if variant in ['mp_cg', 'mpr_cg']:
+        if variant in ['mp_cg', 'mpr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
             alpha = -alpha + lamb**2 * gamma
         p = r_tilde + (alpha / last_alpha) * p
+        if variant in ['pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+            v = w + (alpha / last_alpha) * v
+            v_tilde = w_tilde + (alpha / last_alpha) * v_tilde
 
         iterates = np.vstack((iterates, x))
         residuals = np.vstack((residuals, r))

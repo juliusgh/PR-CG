@@ -8,7 +8,7 @@ import time
 #import psutil
 import cg
 import pr_cg
-from setup import *
+import setup
 
 #N_physical_cores = psutil.cpu_count(logical=False)
 #N_logical_cores = psutil.cpu_count(logical=True)
@@ -16,10 +16,10 @@ from setup import *
 
 # model problems
 n = 64
-#A, b, x_exact, x0 = setup_1d_poisson(n)
-A, b, x_exact, x0 = setup_2d_poisson(n)
-#A, b, x_exact, x0 = setup_matrix_market('bcsstk03') #'model_48_8_3')bcsstk03,nos2
-#A, b, x_exact, x0 = setup_2d_convdiff(n)
+#A, b, x_exact, x0 = setup.poisson_1d(n)
+A, b, x_exact, x0 = setup.poisson_2d(n)
+#A, b, x_exact, x0 = setup.matrix_market('bcsstk03') #'model_48_8_3')bcsstk03,nos2
+#A, b, x_exact, x0 = setup.convdiff_2d(n)
 #print(A.todense())
 dtype = np.float64
 A = A.astype(dtype)
@@ -36,20 +36,20 @@ print(time.process_time() - start)
 print('residual norm:', np.linalg.norm(A @ x - b))
 
 start = time.process_time()
-x1, iterates1, residuals1 = cg.pcg(A, b, x0, x_exact, preconditioner=jacobi, max_iter=1200, eps=0, variant='mpr_cg')
+x1, iterates1, residuals1 = cg.pcg(A, b, x0, x_exact, preconditioner=jacobi, max_iter=120, eps=0, variant='mpr_cg')
 print(x1.dtype)
 print(time.process_time() - start, len(iterates1))
 print('residual norm:', np.linalg.norm(A @ x1 - b))
 
 start = time.process_time()
-x2, iterates2, residuals2 = cg.pr_pcg(A, b, x0, x_exact, preconditioner=jacobi, max_iter=1200, eps=0, recompute=True)
+x2, iterates2, residuals2 = cg.pr_pcg(A, b, x0, x_exact, preconditioner=jacobi, max_iter=120, eps=0, recompute=True)
 print(x2.dtype)
 print(time.process_time() - start, len(iterates2))
 print('residual norm:', np.linalg.norm(A @ x2 - b))
 
 start = time.process_time()
 #x3, iterates3 = pr_cg.pr_pcg(A, b, x0, max_iter=1200, preconditioner=jacobi)
-x3, iterates3, residuals3 = cg.pr_master_pcg(A, b, x0, preconditioner=jacobi, max_iter=1200, eps=0)
+x3, iterates3, residuals3 = cg.pr_master_pcg(A, b, x0, preconditioner=jacobi, max_iter=120, eps=0)
 print(time.process_time() - start, len(iterates3))
 print('residual norm:', np.linalg.norm(A @ x3 - b))
 
@@ -79,3 +79,6 @@ plt.semilogy(np.arange(1,len(r2_2norm)+1), r2_2norm, label='residual2')
 plt.show()
 #plt.spy(A)
 #plt.show()
+print(np.linalg.norm(x - x_exact))
+print(np.linalg.norm(x1 - x_exact))
+print(np.linalg.norm(x1 - x))

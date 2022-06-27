@@ -2,16 +2,18 @@
 import numpy as np
 import scipy as sp
 from scipy import sparse
+import scipy.sparse.linalg
+from scipy.io import loadmat
 from scipy.sparse import diags, csr_matrix
 
-def setup_1d_poisson(n):
+def poisson_1d(n, dtype=np.float64):
     # compute mesh width from n (number of interior points)
     h = 1 / (n+1);
     nn = n;
     # assemble coefficient matrix A
     k = [-np.ones(n-1),2*np.ones(n),-np.ones(n-1)]
     offset = [-1,0,1]
-    A = diags(k,offset).toarray()
+    A = csr_matrix(diags(k,offset))
     # initialise remaining vectors
     x_exact = np.zeros(n);
     b = np.zeros(n);
@@ -22,14 +24,18 @@ def setup_1d_poisson(n):
         b[i] = b[i] * (h*h);
         x_exact[i] = (xi*(1-xi))**2;
     x0 = np.zeros(A.shape[0])
+    x_exact = scipy.sparse.linalg.spsolve(A, b)
+    
+    A = A.astype(dtype)
+    b = b.astype(dtype)
+    x0 = x0.astype(dtype)
     return A, b, x_exact, x0
 
-def setup_2d_poisson(n):
+def poisson_2d(n, dtype=np.float64):
     # compute mesh width from n (number of interior points per dimension)
     h = 1 / (n+1);
     nn = n*n;
-    # assemble coefficient matrix A, quick and dirty 
-    # see https://de.mathworks.com/help/matlab/ref/kron.html
+    # assemble coefficient matrix A, quick and dirty
     I = sparse.eye(n,n)
     E = csr_matrix((np.ones(n-1),(np.arange(1,n),np.arange(0,n-1))),shape=(n,n)) #???
     D = E+E.T-2*I;
@@ -45,17 +51,25 @@ def setup_2d_poisson(n):
             b[(j-1)*n+i-1] = -2*(6*xij**2-6*xij+1)*(yij-1)**2*yij**2 - 2*(xij-1)**2*xij**2*(6*yij**2-6*yij+1)
             b[(j-1)*n+i-1] = b[(j-1)*n+i-1] * (h*h)
             x_exact[(j-1)*n+i-1] = (xij*(1-xij)*yij*(1-yij))**2
+    x_exact = sparse.linalg.spsolve(A, b)
+    A = A.astype(dtype)
+    b = b.astype(dtype)
+    x0 = x0.astype(dtype)
     return A, b, x_exact, x0
 
-def setup_matrix_market(matrix_name):
+def matrix_market(matrix_name, dtype=np.float64):
     A = csr_matrix(sp.io.mmread(f"matrices/{matrix_name}.mtx"))
     N = A.get_shape()[0]
     x_exact = np.ones(N) / np.sqrt(N)
     b = A @ x_exact
     x0 = np.zeros(A.shape[0])
+
+    A = A.astype(dtype)
+    b = b.astype(dtype)
+    x0 = x0.astype(dtype)
     return A, b, x_exact, x0
 
-def setup_2d_convdiff(n, central_differences=True):
+def convdiff_2d(n, central_differences=True):
     h = 1 / (n+1)
     nn = n*n
 
