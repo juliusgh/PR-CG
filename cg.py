@@ -114,7 +114,7 @@ def pcg(A, b, x0, x_exact, preconditioner=lambda x:x, max_iter=10000, eps=1e-8, 
     r_tilde = preconditioner(r)
     p = r_tilde
     alpha = np.dot(r_tilde, r)
-    if variant in ['pipe_p_cg', 'pipe_pr_cg']:
+    if variant in ['pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
         v = A @ p
         v_tilde = preconditioner(v)
 
@@ -123,7 +123,7 @@ def pcg(A, b, x0, x_exact, preconditioner=lambda x:x, max_iter=10000, eps=1e-8, 
     x = x0
     m = 0
     while (m < max_iter):
-        if variant in ['pipe_p_cg', 'pipe_pr_cg']:
+        if variant in ['pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
             u = A @ v_tilde
             u_tilde = preconditioner(u)
             w = A @ r_tilde
