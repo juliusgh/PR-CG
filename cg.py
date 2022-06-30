@@ -13,7 +13,15 @@ def cg(A, b, x0, max_iter=10000, eps=1e-8, variant='cg'):
     """CG method
 
     Following CG variants are available:
-    'cg', 'p_cg', 'pr_cg', 'mp_cg', 'mpr_cg', 'pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg'
+    'cg': vanilla CG method
+    'p_cg': Predict-and-Recompute CG method without recomputation
+    'pr_cg': Predict-and-Recompute CG method
+    'mp_cg': Meurant CG method without recomputation
+    'mpr_cg': Meurant CG method
+    'pipe_p_cg': Pipelined Predict-and-Recompute CG method without recomputation
+    'pipe_pr_cg': Pipelined Predict-and-Recompute CG method
+    'pipe_mp_cg': Pipelined Meurant CG method without recomputation
+    'pipe_mpr_cg': Pipelined Meurant CG method
 
     :param A: system matrix A
     :type A: NumPy array
@@ -81,7 +89,15 @@ def pcg(A, b, x0, preconditioner=lambda x:x, max_iter=10000, eps=1e-8, variant='
     """Preconditioned CG method
 
     Following CG variants are available:
-    'cg', 'p_cg', 'pr_cg', 'mp_cg', 'mpr_cg', 'pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg'
+    'cg': vanilla CG method
+    'p_cg': Predict-and-Recompute CG method without recomputation
+    'pr_cg': Predict-and-Recompute CG method
+    'mp_cg': Meurant CG method without recomputation
+    'mpr_cg': Meurant CG method
+    'pipe_p_cg': Pipelined Predict-and-Recompute CG method without recomputation
+    'pipe_pr_cg': Pipelined Predict-and-Recompute CG method
+    'pipe_mp_cg': Pipelined Meurant CG method without recomputation
+    'pipe_mpr_cg': Pipelined Meurant CG method
 
     :param A: system matrix A
     :type A: NumPy array
