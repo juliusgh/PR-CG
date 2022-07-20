@@ -18,10 +18,10 @@ def cg(A, b, x0, max_iter=10000, eps=1e-8, variant='cg'):
     'pr_cg': Predict-and-Recompute CG method
     'mp_cg': Meurant CG method without recomputation
     'mpr_cg': Meurant CG method
-    'pipe_p_cg': Pipelined Predict-and-Recompute CG method without recomputation
-    'pipe_pr_cg': Pipelined Predict-and-Recompute CG method
-    'pipe_mp_cg': Pipelined Meurant CG method without recomputation
-    'pipe_mpr_cg': Pipelined Meurant CG method
+    'pl_p_cg': Pipelined Predict-and-Recompute CG method without recomputation
+    'pl_pr_cg': Pipelined Predict-and-Recompute CG method
+    'pl_mp_cg': Pipelined Meurant CG method without recomputation
+    'pl_mpr_cg': Pipelined Meurant CG method
 
     :param A: system matrix A
     :type A: NumPy array
@@ -40,7 +40,7 @@ def cg(A, b, x0, max_iter=10000, eps=1e-8, variant='cg'):
     r = r0
     p = r
     alpha = np.dot(r, r)
-    if variant in ['pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+    if variant in ['pl_p_cg', 'pl_pr_cg', 'pl_mp_cg', 'pl_mpr_cg']:
         v = A @ p
 
     iterates = x0
@@ -48,31 +48,31 @@ def cg(A, b, x0, max_iter=10000, eps=1e-8, variant='cg'):
     x = x0
     m = 0
     while (m < max_iter):
-        if variant in ['pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+        if variant in ['pl_p_cg', 'pl_pr_cg', 'pl_mp_cg', 'pl_mpr_cg']:
             u = A @ v
             w = A @ r
         else:
             v = A @ p
         mu = np.dot(v, p)
-        if variant in ['p_cg', 'pr_cg', 'mp_cg', 'mpr_cg', 'pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+        if variant in ['p_cg', 'pr_cg', 'mp_cg', 'mpr_cg', 'pl_p_cg', 'pl_pr_cg', 'pl_mp_cg', 'pl_mpr_cg']:
             sigma = np.dot(r, v)
             gamma = np.dot(v, v)
-        if variant in ['pr_cg', 'mpr_cg', 'pipe_pr_cg', 'pipe_mpr_cg']:
+        if variant in ['pr_cg', 'mpr_cg', 'pl_pr_cg', 'pl_mpr_cg']:
             alpha = np.dot(r, r)
         lamb = alpha / mu
         x = x + lamb * p
         r = r - lamb * v
-        if variant in ['pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+        if variant in ['pl_p_cg', 'pl_pr_cg', 'pl_mp_cg', 'pl_mpr_cg']:
             w = w - lamb * u
         last_alpha = alpha
         if variant in ['cg']:
             alpha = np.dot(r, r)
-        if variant in ['p_cg', 'pr_cg', 'pipe_p_cg', 'pipe_pr_cg']:
+        if variant in ['p_cg', 'pr_cg', 'pl_p_cg', 'pl_pr_cg']:
             alpha = alpha - 2*lamb*sigma + lamb**2 * gamma
-        if variant in ['mp_cg', 'mpr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+        if variant in ['mp_cg', 'mpr_cg', 'pl_mp_cg', 'pl_mpr_cg']:
             alpha = -alpha + lamb**2 * gamma
         p = r + (alpha / last_alpha) * p
-        if variant in ['pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+        if variant in ['pl_p_cg', 'pl_pr_cg', 'pl_mp_cg', 'pl_mpr_cg']:
             v = w + (alpha / last_alpha) * v
 
         iterates = np.vstack((iterates, x))
@@ -94,10 +94,10 @@ def pcg(A, b, x0, preconditioner=lambda x:x, max_iter=10000, eps=1e-8, variant='
     'pr_cg': Predict-and-Recompute CG method
     'mp_cg': Meurant CG method without recomputation
     'mpr_cg': Meurant CG method
-    'pipe_p_cg': Pipelined Predict-and-Recompute CG method without recomputation
-    'pipe_pr_cg': Pipelined Predict-and-Recompute CG method
-    'pipe_mp_cg': Pipelined Meurant CG method without recomputation
-    'pipe_mpr_cg': Pipelined Meurant CG method
+    'pl_p_cg': Pipelined Predict-and-Recompute CG method without recomputation
+    'pl_pr_cg': Pipelined Predict-and-Recompute CG method
+    'pl_mp_cg': Pipelined Meurant CG method without recomputation
+    'pl_mpr_cg': Pipelined Meurant CG method
 
     :param A: system matrix A
     :type A: NumPy array
@@ -119,7 +119,7 @@ def pcg(A, b, x0, preconditioner=lambda x:x, max_iter=10000, eps=1e-8, variant='
     r_tilde = preconditioner(r)
     p = r_tilde
     alpha = np.dot(r_tilde, r)
-    if variant in ['pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+    if variant in ['pl_p_cg', 'pl_pr_cg', 'pl_mp_cg', 'pl_mpr_cg']:
         v = A @ p
         v_tilde = preconditioner(v)
 
@@ -128,7 +128,7 @@ def pcg(A, b, x0, preconditioner=lambda x:x, max_iter=10000, eps=1e-8, variant='
     x = x0
     m = 0
     while (m < max_iter):
-        if variant in ['pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+        if variant in ['pl_p_cg', 'pl_pr_cg', 'pl_mp_cg', 'pl_mpr_cg']:
             u = A @ v_tilde
             u_tilde = preconditioner(u)
             w = A @ r_tilde
@@ -137,27 +137,27 @@ def pcg(A, b, x0, preconditioner=lambda x:x, max_iter=10000, eps=1e-8, variant='
             v = A @ p
             v_tilde = preconditioner(v)
         mu = np.dot(v, p)
-        if variant in ['p_cg', 'pr_cg', 'mp_cg', 'mpr_cg', 'pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+        if variant in ['p_cg', 'pr_cg', 'mp_cg', 'mpr_cg', 'pl_p_cg', 'pl_pr_cg', 'pl_mp_cg', 'pl_mpr_cg']:
             sigma = np.dot(r, v_tilde)
             gamma = np.dot(v_tilde, v)
-        if variant in ['pr_cg', 'mpr_cg', 'pipe_pr_cg', 'pipe_mpr_cg']:
+        if variant in ['pr_cg', 'mpr_cg', 'pl_pr_cg', 'pl_mpr_cg']:
             alpha = np.dot(r_tilde, r)
         lamb = alpha / mu
         x = x + lamb * p
         r = r - lamb * v
         r_tilde = r_tilde - lamb * v_tilde
-        if variant in ['pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+        if variant in ['pl_p_cg', 'pl_pr_cg', 'pl_mp_cg', 'pl_mpr_cg']:
             w = w - lamb * u
             w_tilde = w_tilde - lamb * u_tilde
         last_alpha = alpha
         if variant in ['cg']:
             alpha = np.dot(r_tilde, r)
-        if variant in ['p_cg', 'pr_cg', 'pipe_p_cg', 'pipe_pr_cg']:
+        if variant in ['p_cg', 'pr_cg', 'pl_p_cg', 'pl_pr_cg']:
             alpha = alpha - 2*lamb*sigma + lamb**2 * gamma
-        if variant in ['mp_cg', 'mpr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+        if variant in ['mp_cg', 'mpr_cg', 'pl_mp_cg', 'pl_mpr_cg']:
             alpha = -alpha + lamb**2 * gamma
         p = r_tilde + (alpha / last_alpha) * p
-        if variant in ['pipe_p_cg', 'pipe_pr_cg', 'pipe_mp_cg', 'pipe_mpr_cg']:
+        if variant in ['pl_p_cg', 'pl_pr_cg', 'pl_mp_cg', 'pl_mpr_cg']:
             v = w + (alpha / last_alpha) * v
             v_tilde = w_tilde + (alpha / last_alpha) * v_tilde
 

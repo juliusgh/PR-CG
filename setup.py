@@ -39,7 +39,7 @@ def poisson_1d(n, dtype=np.float64):
     return A, b, x_exact, x0
 
 
-def poisson_2d(n, dtype=np.float64):
+def poisson_2d(n, dtype=np.float64, k1=1.0, k2=1.0):
     """Assemble the model problem "Poisson 2D"
 
     :param n: Problem size
@@ -54,16 +54,19 @@ def poisson_2d(n, dtype=np.float64):
     I = sparse.eye(n,n)
     E = csr_matrix((np.ones(n-1),(np.arange(1,n),np.arange(0,n-1))),shape=(n,n))
     D = E + E.T - 2 * I
-    A = -(sparse.kron(D,I) + sparse.kron(I,D))
-    b = np.zeros(N)
+    A = -(k2*sparse.kron(D,I) + k1*sparse.kron(I,D)).astype(dtype)
+    b = np.zeros(N).astype(dtype)
     for i in range(1,n+1):
         for j in range(1,n+1):
             xij = i*h; yij = j*h
-            b[(j-1)*n+i-1] = -2*(6*xij**2-6*xij+1)*(yij-1)**2*yij**2 - 2*(xij-1)**2*xij**2*(6*yij**2-6*yij+1)
+            b[(j-1)*n+i-1] = -k1*2*(6*xij**2-6*xij+1)*(yij-1)**2*yij**2 - k2*2*(xij-1)**2*xij**2*(6*yij**2-6*yij+1)
             b[(j-1)*n+i-1] = b[(j-1)*n+i-1] * (h*h)
-    x_exact = np.linalg.solve(A.toarray(), b)
-    x0 = np.zeros(N)
-
+    #x_exact = np.linalg.solve(A.toarray(), b)
+    #print(np.linalg.norm(A @ x_exact - b))
+    x_exact = np.ones(N) / np.sqrt(N)
+    b = A @ x_exact
+    x0 = np.zeros(N).astype(dtype)
+    
     A = A.astype(dtype)
     b = b.astype(dtype)
     x0 = x0.astype(dtype)
@@ -91,5 +94,3 @@ def matrix_market(matrix_name, dtype=np.float64):
     b = b.astype(dtype)
     x0 = x0.astype(dtype)
     return A, b, x_exact, x0
-
-poisson_2d(2)
