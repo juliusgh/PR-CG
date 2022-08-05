@@ -1,8 +1,10 @@
 # PR-CG
-Predict-and-recompute conjugate gradient variants
+Stability and convergence analysis of *Predict-and-Recompute Conjugate Gradient (CG) variants* that are published in https://arxiv.org/abs/1905.01549.
 
-Predict-and-Recompute CG variants: `cg.py`
+## Structure of the repository:
 
-Model problems: `setup.py`
+Implementation of the CG variants: [`cg.py`](cg.py)
 
-Numerical experiments: `experiments.ipynb`
+Definition of the model problems: [`setup.py`](setup.py)
+
+Numerical experiments: [`experiments.ipynb`](experiments.ipynb)
